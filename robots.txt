@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# TODO: replace with your real domain after purchase
-Sitemap: https://YOUR-DOMAIN-HERE.com/sitemap.xml
+Sitemap: https://qing-chan.github.io/heic-to-jpg/sitemap.xml
