@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://qing-chan.github.io/heic-to-jpg/sitemap.xml
+Sitemap: https://myheicgo.com/sitemap.xml
