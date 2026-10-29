@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# TODO: replace with your real domain after purchase
+Sitemap: https://YOUR-DOMAIN-HERE.com/sitemap.xml

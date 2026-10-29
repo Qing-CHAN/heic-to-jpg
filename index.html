@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEIC to JPG Converter — Free, Private, No Upload</title>
+  <meta name="description" content="Convert HEIC photos from your iPhone to JPG instantly in your browser. 100% free, batch conversion, no sign-up. Files never leave your device.">
+  <!-- TODO: after you buy a domain, replace with the real URL -->
+  <link rel="canonical" href="https://YOUR-DOMAIN-HERE.com/">
+  <meta property="og:title" content="HEIC to JPG Converter — Free, Private, No Upload">
+  <meta property="og:description" content="Convert iPhone HEIC photos to JPG in your browser. Files never leave your device.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HEIC to JPG Converter",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Free online converter that turns iPhone HEIC photos into JPG directly in your browser. No upload, no sign-up, batch conversion supported."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a HEIC file?",
+        "acceptedAnswer": { "@type": "Answer", "text": "HEIC (High Efficiency Image Container) is the default photo format on iPhones since iOS 11. It stores higher-quality images at about half the size of JPG, but many Windows programs, websites and older devices cannot open it." }
+      },
+      {
+        "@type": "Question",
+        "name": "Are my photos uploaded to a server?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. The conversion runs entirely inside your browser using WebAssembly. Your files never leave your device." }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this converter really free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes, it is completely free with no sign-up, no watermark and no daily limit." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I convert multiple HEIC files at once?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. You can drag and drop or select many files at once, download them one by one, or grab them all in a single ZIP file." }
+      },
+      {
+        "@type": "Question",
+        "name": "Why did my file fail to convert?",
+        "acceptedAnswer": { "@type": "Answer", "text": "The most common reasons are a corrupted file, a file that is not actually HEIC (for example a renamed JPG), or an outdated browser. Try updating your browser and converting the file again." }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">HEIC<span class="logo-arrow">→</span>JPG</a>
+      <nav class="nav">
+        <a href="#how">How it works</a>
+        <a href="#about">About HEIC</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Convert HEIC to JPG — free &amp; private</h1>
+        <p class="hero-sub">
+          Drop your iPhone photos below. Everything is converted <b>inside your browser</b> —
+          your files never leave your device. No sign-up, no watermark, no limits.
+        </p>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="error-banner" class="error-banner" hidden></div>
+
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Choose or drop HEIC files">
+        <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-title">Drag &amp; drop HEIC photos here</p>
+        <p class="dz-sub">or <span class="dz-browse">browse your files</span> · multiple files supported</p>
+        <input id="file-input" type="file" accept=".heic,.heif,image/heic,image/heif" multiple hidden>
+      </div>
+
+      <div id="file-list" class="file-list" hidden></div>
+
+      <div class="list-actions">
+        <button id="add-more" class="btn btn-ghost" hidden>+ Add more files</button>
+        <button id="download-all" class="btn btn-primary" hidden>
+          Download all as ZIP (<span id="done-count">0</span>)
+        </button>
+      </div>
+    </section>
+
+    <section class="features container" aria-label="Features">
+      <div class="feature-card">
+        <div class="feature-emoji">🔒</div>
+        <h3>100% private</h3>
+        <p>Conversion happens locally in your browser. Nothing is uploaded, stored or shared.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">💸</div>
+        <h3>Completely free</h3>
+        <p>No accounts, no subscriptions, no watermarks and no daily conversion limits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">⚡</div>
+        <h3>Batch friendly</h3>
+        <p>Drop a whole album at once, then download everything in a single ZIP file.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">📱</div>
+        <h3>Works everywhere</h3>
+        <p>Chrome, Edge, Firefox and Safari on Windows, Mac, Android and iPhone.</p>
+      </div>
+    </section>
+
+    <section id="how" class="section container">
+      <h2>How to convert HEIC to JPG</h2>
+      <ol class="steps">
+        <li><b>Select your photos</b> — drag them onto the box above or click to browse.</li>
+        <li><b>Wait a moment</b> — each file is converted automatically, right on your device.</li>
+        <li><b>Download</b> — save files individually or grab them all as one ZIP.</li>
+      </ol>
+    </section>
+
+    <section id="about" class="section container">
+      <h2>What is a HEIC file?</h2>
+      <p>
+        HEIC (High Efficiency Image Container) is the default photo format Apple introduced with iOS 11.
+        It stores images at roughly half the file size of an equivalent JPG, which is great for saving
+        storage space on your iPhone.
+      </p>
+      <p>
+        The problem: plenty of software still can't read it. Windows photo viewers, many websites,
+        CMS platforms, older Android devices and most online forms expect JPG or PNG. Converting HEIC
+        to JPG makes your photos universally compatible — at the small cost of a slightly larger file.
+      </p>
+      <p>
+        This tool converts HEIC and HEIF files to high-quality JPG (92% quality) entirely on your own
+        device, so even sensitive or personal photos stay private.
+      </p>
+    </section>
+
+    <section id="faq" class="section container">
+      <h2>Frequently asked questions</h2>
+      <div class="faq-item">
+        <h3>What is a HEIC file?</h3>
+        <p>HEIC is the default photo format on iPhones since iOS 11. It offers better compression than JPG, but many programs and websites can't open it directly.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Are my photos uploaded to a server?</h3>
+        <p>No. Conversion runs entirely inside your browser using WebAssembly. Your files never leave your device — you can even disconnect from the internet after the page loads.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is it really free?</h3>
+        <p>Yes. No sign-up, no watermark, no daily limits. The site is supported by ads.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I convert multiple files at once?</h3>
+        <p>Yes — drop as many as you like, then download them one by one or all together in a ZIP.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Why did my file fail to convert?</h3>
+        <p>Usually the file is corrupted or isn't actually a HEIC (sometimes JPGs get renamed to .heic). An outdated browser can also be the cause — try the latest Chrome, Edge or Safari.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>HEIC→JPG · Free private HEIC to JPG conversion in your browser.</p>
+      <p class="footer-muted">© 2026 · Your photos stay on your device.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
