@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — HEIC to JPG Converter</title>
+  <meta name="description" content="About the free HEIC to JPG converter: who builds it, why it is private, and how to get in touch.">
+  <link rel="canonical" href="https://qing-chan.github.io/heic-to-jpg/about.html">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">HEIC<span class="logo-arrow">→</span>JPG</a>
+      <nav class="nav">
+        <a href="/">Converter</a>
+        <a href="privacy.html">Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container section">
+    <h1>About this site</h1>
+
+    <h2>Why we built it</h2>
+    <p>
+      Every year, millions of people plug an iPhone into a Windows PC and discover their photos
+      won't open. HEIC is a great format for saving space — and a frustrating one when a website,
+      a print shop or an old program demands a JPG. We wanted a converter that just works:
+      no sign-up walls, no watermarks, no "you've reached your free limit", and no uploading
+      personal photos to a stranger's server.
+    </p>
+
+    <h2>How it works</h2>
+    <p>
+      The entire converter runs in your browser via WebAssembly. Your images are decoded and
+      re-encoded locally, on your own device. You can verify this yourself: open the tool,
+      disconnect from the internet, and it will keep converting.
+    </p>
+
+    <h2>The site is free — how?</h2>
+    <p>
+      The site costs almost nothing to run (static hosting, no servers processing your images),
+      so unobtrusive banner advertising covers the costs. That's the whole business model:
+      no paid tiers, no feature locking, no data selling.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Found a bug, or want a new conversion feature? Open an issue on our
+      <a href="https://github.com/Qing-CHAN/heic-to-jpg/issues">GitHub repository</a> —
+      feature requests from users genuinely drive what gets built next.
+    </p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>HEIC→JPG · Free private HEIC to JPG conversion in your browser.</p>
+      <p class="footer-muted">© 2026 · Your photos stay on your device.</p>
+    </div>
+  </footer>
+</body>
+</html>
