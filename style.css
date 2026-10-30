@@ -371,3 +371,76 @@ body {
 
 /* 按钮按下微缩 */
 .btn:active { transform: scale(0.97); }
+
+/* ---------- v3 趣味升级：依然克制 ---------- */
+
+/* 1) hero 极光背景：两团柔和光斑缓慢漂浮 */
+.hero { position: relative; overflow: hidden; }
+.hero::before, .hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: .35;
+  pointer-events: none;
+  z-index: -1;
+}
+.hero::before {
+  width: 340px; height: 340px;
+  left: 6%; top: -80px;
+  background: radial-gradient(circle, #93c5fd, transparent 65%);
+  animation: mhg-float 11s ease-in-out infinite alternate;
+}
+.hero::after {
+  width: 300px; height: 300px;
+  right: 4%; top: -40px;
+  background: radial-gradient(circle, #c4b5fd, transparent 65%);
+  animation: mhg-float 14s ease-in-out infinite alternate-reverse;
+}
+@keyframes mhg-float {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 24px) scale(1.12); }
+}
+
+/* 2) 上传区：静止时图标轻轻呼吸，悬停整卡上浮 */
+.dz-icon { animation: mhg-breath 3.2s ease-in-out infinite; }
+@keyframes mhg-breath {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-4px) scale(1.05); }
+}
+.dropzone {
+  transition: border-color .15s, background .15s, transform .18s ease, box-shadow .18s ease;
+}
+.dropzone:hover, .dropzone:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.10);
+}
+
+/* 3) 格式按钮：悬停轻抬；激活键带一点果冻感 */
+.fmt-btn { transition: transform .15s ease, background .15s, color .15s; }
+.fmt-btn:hover { transform: translateY(-1px); color: var(--text); }
+.fmt-btn.active { transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.fmt-btn.active:hover { transform: none; }
+
+/* 4) 功能卡：悬停上浮 + 阴影加深 */
+.feature-card { transition: transform .2s ease, box-shadow .2s ease; }
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* 5) 顶部 logo：鼠标经过时轻轻摇摆 */
+.logo { display: inline-block; }
+.logo:hover .logo-icon { animation: mhg-wave .6s ease; }
+@keyframes mhg-wave {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-10deg); }
+  60% { transform: rotate(8deg); }
+}
+
+/* 6) 尊重系统"减少动态效果"设置 */
+@media (prefers-reduced-motion: reduce) {
+  .hero::before, .hero::after, .dz-icon,
+  .dropzone.dragover .dz-icon, .status-working::before { animation: none; }
+  * { transition-duration: .01ms !important; }
+}
