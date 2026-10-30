@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  var IS_PNG = document.body.getAttribute('data-img-format') === 'png';
+  var OUT_TYPE = IS_PNG ? 'image/png' : 'image/jpeg';
+  var OUT_EXT = IS_PNG ? 'png' : 'jpg';
+
   var dropzone = document.getElementById('dropzone');
   var fileInput = document.getElementById('file-input');
   var fileList = document.getElementById('file-list');
@@ -31,7 +35,7 @@
   }
 
   function outName(name) {
-    return name.replace(/\.(heic|heif)$/i, '') + '.jpg';
+    return name.replace(/\.(heic|heif)$/i, '') + '.' + OUT_EXT;
   }
 
   var errTimer = null;
@@ -139,7 +143,7 @@
       return;
     }
 
-    window.heic2any({ blob: next.file, toType: 'image/jpeg', quality: 0.92 })
+    window.heic2any({ blob: next.file, toType: OUT_TYPE, quality: 0.92 })
       .then(function (result) {
         var blob = Array.isArray(result) ? result[0] : result;
         next.blob = blob;
@@ -153,7 +157,7 @@
         next.ui.thumb.replaceWith(img);
         next.ui.thumb = img;
 
-        setStatus(next, fmtSize(blob.size) + ' · JPG ready', 'status-done');
+        setStatus(next, fmtSize(blob.size) + ' · ' + OUT_EXT.toUpperCase() + ' ready', 'status-done');
 
         var a = document.createElement('a');
         a.className = 'btn btn-small';
@@ -211,7 +215,7 @@
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      a.download = 'heic-to-jpg.zip';
+      a.download = 'heic-to-' + OUT_EXT + '.zip';
       document.body.appendChild(a);
       a.click();
       a.remove();

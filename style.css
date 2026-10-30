@@ -255,3 +255,12 @@ body {
 .section h2 { margin-top: 26px; font-size: 18px; }
 .text-muted { color: var(--muted); font-size: 13.5px; }
 .section a { color: var(--blue); }
+
+/* ---------- guides & articles ---------- */
+.guide-card { text-decoration: none; color: var(--text); transition: border-color .15s; }
+.guide-card:hover { border-color: var(--blue); }
+.guide-card h3 { margin: 0 0 4px; font-size: 14.5px; }
+.article { max-width: 720px; }
+.article h2 { font-size: 18px; }
+.article ul, .article ol { padding-left: 22px; }
+.article li { margin-bottom: 6px; }

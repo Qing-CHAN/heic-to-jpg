@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEIC to PNG Converter — Free, Private, No Upload</title>
+  <meta name="description" content="Convert HEIC photos to PNG instantly in your browser. 100% free, batch conversion, no sign-up. Files never leave your device.">
+  <link rel="canonical" href="https://myheicgo.com/png.html">
+  <meta property="og:title" content="HEIC to PNG Converter — Free, Private, No Upload">
+  <meta property="og:description" content="Convert iPhone HEIC photos to PNG in your browser. Files never leave your device.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2135025602500740" crossorigin="anonymous"></script>
+</head>
+<body data-img-format="png">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/">HEIC<span class="logo-arrow">→</span>PNG</a>
+      <nav class="nav">
+        <a href="/">HEIC to JPG</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Convert HEIC to PNG — free &amp; private</h1>
+        <p class="hero-sub">
+          Drop your iPhone photos below. Everything is converted <b>inside your browser</b> —
+          your files never leave your device. No sign-up, no watermark, no limits.
+          Need a JPG instead? Use our <a href="/">HEIC to JPG converter</a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="error-banner" class="error-banner" hidden></div>
+
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Choose or drop HEIC files">
+        <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-title">Drag &amp; drop HEIC photos here</p>
+        <p class="dz-sub">or <span class="dz-browse">browse your files</span> · multiple files supported</p>
+        <input id="file-input" type="file" accept=".heic,.heif,image/heic,image/heif" multiple hidden>
+      </div>
+
+      <div id="file-list" class="file-list" hidden></div>
+
+      <div class="list-actions">
+        <button id="add-more" class="btn btn-ghost" hidden>+ Add more files</button>
+        <button id="download-all" class="btn btn-primary" hidden>
+          Download all as ZIP (<span id="done-count">0</span>)
+        </button>
+      </div>
+    </section>
+
+    <section class="features container" aria-label="Features">
+      <div class="feature-card">
+        <div class="feature-emoji">🔒</div>
+        <h3>100% private</h3>
+        <p>Conversion happens locally in your browser. Nothing is uploaded or stored.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">💸</div>
+        <h3>Completely free</h3>
+        <p>No accounts, no subscriptions, no watermarks and no daily limits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">⚡</div>
+        <h3>Batch friendly</h3>
+        <p>Drop a whole album at once, then download everything in a single ZIP file.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">🖼</div>
+        <h3>Lossless PNG</h3>
+        <p>PNG keeps every pixel intact — perfect for screenshots, graphics and transparency.</p>
+      </div>
+    </section>
+
+    <section class="section container">
+      <h2>Why convert HEIC to PNG?</h2>
+      <p>
+        PNG is the universal format for images that need to look <b>exactly</b> the same everywhere:
+        it uses lossless compression, supports transparent backgrounds, and opens in every browser,
+        design tool and office program. If you are uploading artwork, screenshots or documents where
+        crispness matters more than file size, PNG is the safer choice than JPG.
+      </p>
+      <p>
+        The trade-off: PNG files are noticeably larger. If you just want photos that open anywhere,
+        <a href="/">converting HEIC to JPG</a> will keep them much smaller.
+      </p>
+    </section>
+
+    <section id="faq" class="section container">
+      <h2>Frequently asked questions</h2>
+      <div class="faq-item">
+        <h3>Are my photos uploaded to a server?</h3>
+        <p>No. Conversion runs entirely inside your browser using WebAssembly. Your files never leave your device.</p>
+      </div>
+      <div class="faq-item">
+        <h3>PNG or JPG — which should I pick?</h3>
+        <p>Pick PNG for graphics, screenshots, transparency and maximum quality. Pick JPG for regular photos where smaller file size matters.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I convert multiple files at once?</h3>
+        <p>Yes — drop as many as you like, then download them one by one or all together in a ZIP.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>HEIC→PNG · Free private HEIC to PNG conversion in your browser.</p>
+      <p class="footer-muted"><a href="/">HEIC to JPG</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy Policy</a> · © 2026</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
