@@ -215,6 +215,49 @@
     processQueue();
   }
 
+  function libheifDecode(file) {
+    var F = window.libheifLocal;
+    if (typeof F !== 'function') return Promise.reject(new Error('libheif not loaded'));
+    return file.arrayBuffer().then(function (buf) {
+      var inst;
+      try { inst = F(); } catch (e) { return Promise.reject(e); }
+      if (inst && typeof inst.then === 'function') {
+        return inst.then(function (i) { return runDecode(i && i.HeifDecoder ? i : F, buf); });
+      }
+      return runDecode(inst && inst.HeifDecoder ? inst : F, buf);
+    });
+  }
+
+  function runDecode(lib, buf) {
+    var decoder = new lib.HeifDecoder();
+    var data = decoder.decode(buf);
+    if (!data || !data.length) return Promise.reject(new Error('libheif: no image'));
+    var image = data[0];
+    var w = image.getwidth ? image.getwidth() : 0;
+    var h = image.getheight ? image.getheight() : 0;
+    return new Promise(function (resolve, reject) {
+      var onOk = function (displayData) {
+        try {
+          var c = document.createElement('canvas');
+          c.width = displayData.width;
+          c.height = displayData.height;
+          var ctx = c.getContext('2d');
+          ctx.putImageData(new ImageData(new Uint8ClampedArray(displayData.data), displayData.width, displayData.height), 0, 0);
+          c.toBlob(function (b) {
+            if (b && /image\/(jpeg|png)/.test(b.type)) resolve(b);
+            else reject(new Error('libheif encode failed'));
+          }, 'image/jpeg', 0.92);
+        } catch (e) { reject(e); }
+      };
+      var onErr = function (err) { reject(new Error('libheif display: ' + (err || 'error'))); };
+      try {
+        image.display({ data: new Uint8ClampedArray(w * h * 4) }, onOk);
+      } catch (e) {
+        try { image.display(onOk, onErr); } catch (e2) { onErr(e); }
+      }
+    });
+  }
+
   function nativeDecode(file) {
     return new Promise(function (resolve, reject) {
       var url = URL.createObjectURL(file);
@@ -283,16 +326,21 @@
       })
       .catch(function (e1) {
         console.error('HEIC convert failed:', next.file.name, e1);
-        nativeDecode(next.file)
+        libheifDecode(next.file)
           .then(function (blob) { handleDone(next, blob); })
           .catch(function (e2) {
-            console.error('HEIC native fallback failed:', next.file.name, e2);
-            next.status = 'error';
-            var why = e2 && e2.message ? String(e2.message).slice(0, 40) : '';
-            setStatus(next, T.failed + (why ? ' · ' + why : ''), 'status-error');
-            addRetry(next);
-            converting = false;
-            processQueue();
+            console.error('HEIC libheif1.23 fallback failed:', next.file.name, e2);
+            nativeDecode(next.file)
+              .then(function (blob) { handleDone(next, blob); })
+              .catch(function (e3) {
+                console.error('HEIC native fallback failed:', next.file.name, e3);
+                next.status = 'error';
+                var why = e3 && e3.message ? String(e3.message).slice(0, 40) : '';
+                setStatus(next, T.failed + (why ? ' · ' + why : ''), 'status-error');
+                addRetry(next);
+                converting = false;
+                processQueue();
+              });
           });
       });
   }
