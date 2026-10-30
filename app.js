@@ -27,6 +27,7 @@
       lib_error: '转换组件加载失败，请检查网络后刷新页面。',
       not_heic: '不是 HEIC/HEIF 文件，已跳过。',
       fmt_switch: '格式已切换 — 之后添加的文件将转换为 %s。',
+      orig: '原始尺寸',
       page_ready: '已就绪',
       engine_loading: '解码引擎下载中，请稍候…',
       engine_hint: '首次使用需下载解码引擎（约 2MB），下载完成后即可转换，请保持网络畅通。',
@@ -46,7 +47,8 @@
     pdf_btn: 'Descargar PDF (%d páginas)',
     lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
     not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.',
-    fmt_switch: 'Formato cambiado — los archivos que añadas se convertirán a %s.'
+    fmt_switch: 'Formato cambiado — los archivos que añadas se convertirán a %s.',
+    orig: 'Tamaño original'
     },
     en: {
     waiting: 'waiting…',
@@ -62,7 +64,8 @@
     pdf_btn: 'Download PDF (%d pages)',
     lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
     not_heic: 'is not a HEIC/HEIF file and was skipped.',
-    fmt_switch: 'Format switched — files added from now on will be %s.'
+    fmt_switch: 'Format switched — files added from now on will be %s.',
+    orig: 'Original size'
     }
   };
   var T = _MSG[document.documentElement.lang] || _MSG.en;
@@ -424,9 +427,8 @@
       showError('PDF library not loaded. Refresh the page and try again.');
       return;
     }
-    var doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
-    var A4W = 595.28, A4H = 841.89, MARGIN = 24;
-    var maxW = A4W - MARGIN * 2, maxH = A4H - MARGIN * 2;
+    var FIXED = { a4: [595.28, 841.89], letter: [612, 792] };
+    var doc = null, PW, PH, maxW, maxH;
     var chain = Promise.resolve();
     done.forEach(function (it, idx) {
       chain = chain.then(function () {
@@ -442,13 +444,23 @@
           c.height = h;
           c.getContext('2d').drawImage(img, 0, 0);
           var data = c.toDataURL('image/jpeg', 0.92);
-          if (idx > 0) doc.addPage('a4', 'pt');
-          var r = Math.min(maxW / w, maxH / h);
-          doc.addImage(data, 'JPEG', (A4W - w * r) / 2, (A4H - h * r) / 2, w * r, h * r);
+          if (pdfPage === 'original') {
+            if (!doc) doc = new window.jspdf.jsPDF({ unit: 'pt', format: [w, h] });
+            else doc.addPage([w, h]);
+            doc.addImage(data, 'JPEG', 0, 0, w, h);
+          } else {
+            var f = FIXED[pdfPage] || FIXED.a4;
+            PW = f[0]; PH = f[1];
+            maxW = PW - 48; maxH = PH - 48;
+            if (!doc) doc = new window.jspdf.jsPDF({ unit: 'pt', format: pdfPage });
+            else doc.addPage(pdfPage);
+            var r = Math.min(maxW / w, maxH / h);
+            doc.addImage(data, 'JPEG', (PW - w * r) / 2, (PH - h * r) / 2, w * r, h * r);
+          }
         });
       });
     });
-    chain.then(function () { doc.save('myheicgo.pdf'); })
+    chain.then(function () { if (!doc) throw new Error('no pages'); doc.save('myheicgo.pdf'); })
       .catch(function () { showError('PDF generation failed. Please try again.'); });
   }
 
@@ -519,11 +531,44 @@
   });
   addMoreBtn.addEventListener('click', function () { fileInput.click(); });
 
+  updatePageSelector();
+
   if (!libReady()) {
     showEngineHint();
     var enginePoll = setInterval(function () {
       if (libReady()) { clearInterval(enginePoll); hideEngineHint(); }
     }, 500);
+  }
+
+  /* ---------- pdf page-size selector ---------- */
+  var pdfPage = 'a4';
+  var pageSizeRow = null;
+  function buildPageSelector() {
+    if (pageSizeRow) return pageSizeRow;
+    pageSizeRow = document.createElement('div');
+    pageSizeRow.className = 'format-toggle page-size-toggle';
+    pageSizeRow.style.margin = '10px auto 0';
+    pageSizeRow.style.display = 'none';
+    var opts = [['a4', 'A4'], ['letter', 'Letter'], ['original', T.orig]];
+    opts.forEach(function (o, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fmt-btn' + (i === 0 ? ' active' : '');
+      if (i > 0) b.style.borderLeft = 'none';
+      b.textContent = o[1];
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        pdfPage = o[0];
+        pageSizeRow.querySelectorAll('.fmt-btn').forEach(function (x) { x.classList.toggle('active', x === b); });
+      });
+      pageSizeRow.appendChild(b);
+    });
+    var toggle = document.querySelector('.format-toggle');
+    if (toggle && toggle.parentNode) toggle.parentNode.insertBefore(pageSizeRow, toggle.nextSibling);
+    return pageSizeRow;
+  }
+  function updatePageSelector() {
+    buildPageSelector().style.display = (outFmt === 'pdf') ? 'flex' : 'none';
   }
 
   /* ---------- format toggle ---------- */
@@ -536,6 +581,7 @@
       if (f === outFmt) return;
       outFmt = f;
       fmtBtns.forEach(function (x) { x.classList.toggle('active', x === b); });
+      updatePageSelector();
       if (items.length) {
         showError(T.fmt_switch.replace('%s', outExt().toUpperCase()));
       }
