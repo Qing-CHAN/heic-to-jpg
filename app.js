@@ -381,8 +381,9 @@
               .catch(function (e3) {
                 console.error('HEIC native fallback failed:', next.file.name, e3);
                 next.status = 'error';
-                var why = e3 && e3.message ? String(e3.message).slice(0, 40) : '';
-                setStatus(next, T.failed + (why ? ' · ' + why : ''), 'status-error');
+                var why2 = e2 && e2.message ? String(e2.message).slice(0, 60) : 'unknown';
+                var why3 = e3 && e3.message ? String(e3.message).slice(0, 40) : '';
+                setStatus(next, T.failed + ' · L2:' + why2 + (why3 ? ' · L3:' + why3 : ''), 'status-error');
                 addRetry(next);
                 converting = false;
                 processQueue();
