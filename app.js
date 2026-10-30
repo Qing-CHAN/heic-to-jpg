@@ -1,9 +1,10 @@
 (function () {
   'use strict';
 
-  var IS_PNG = document.body.getAttribute('data-img-format') === 'png';
-  var OUT_TYPE = IS_PNG ? 'image/png' : 'image/jpeg';
-  var OUT_EXT = IS_PNG ? 'png' : 'jpg';
+  var outFmt = document.body.getAttribute('data-img-format') === 'png' ? 'png' : 'jpg';
+
+  function outType() { return outFmt === 'png' ? 'image/png' : 'image/jpeg'; }
+  function outExt() { return outFmt === 'png' ? 'png' : 'jpg'; }
 
   var dropzone = document.getElementById('dropzone');
   var fileInput = document.getElementById('file-input');
@@ -35,7 +36,7 @@
   }
 
   function outName(name) {
-    return name.replace(/\.(heic|heif)$/i, '') + '.' + OUT_EXT;
+    return name.replace(/\.(heic|heif)$/i, '') + '.' + outExt();
   }
 
   var errTimer = null;
@@ -143,7 +144,7 @@
       return;
     }
 
-    window.heic2any({ blob: next.file, toType: OUT_TYPE, quality: 0.92 })
+    window.heic2any({ blob: next.file, toType: outType(), quality: 0.92 })
       .then(function (result) {
         var blob = Array.isArray(result) ? result[0] : result;
         next.blob = blob;
@@ -157,7 +158,7 @@
         next.ui.thumb.replaceWith(img);
         next.ui.thumb = img;
 
-        setStatus(next, fmtSize(blob.size) + ' · ' + OUT_EXT.toUpperCase() + ' ready', 'status-done');
+        setStatus(next, fmtSize(blob.size) + ' · ' + outExt().toUpperCase() + ' ready', 'status-done');
 
         var a = document.createElement('a');
         a.className = 'btn btn-small';
@@ -215,7 +216,7 @@
       var url = URL.createObjectURL(blob);
       var a = document.createElement('a');
       a.href = url;
-      a.download = 'heic-to-' + OUT_EXT + '.zip';
+      a.download = 'heic-to-' + outExt() + '.zip';
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -252,4 +253,19 @@
     fileInput.value = '';
   });
   addMoreBtn.addEventListener('click', function () { fileInput.click(); });
+
+  /* ---------- format toggle ---------- */
+  var fmtBtns = document.querySelectorAll('.fmt-btn');
+  fmtBtns.forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var f = b.getAttribute('data-fmt');
+      if (f === outFmt) return;
+      outFmt = f;
+      fmtBtns.forEach(function (x) { x.classList.toggle('active', x === b); });
+      if (items.length) {
+        showError('Format switched — files added from now on will be ' + outExt().toUpperCase() + '.');
+      }
+    });
+  });
 })();
