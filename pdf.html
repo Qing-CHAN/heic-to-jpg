@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEIC to PDF Converter — Free, Private, No Upload</title>
+  <meta name="description" content="Convert HEIC photos to a PDF document instantly in your browser. Multiple photos become one multi-page PDF. 100% free, files never leave your device.">
+  <link rel="canonical" href="https://myheicgo.com/pdf.html">
+  <meta property="og:title" content="HEIC to PDF Converter — Free, Private">
+  <meta property="og:description" content="Turn iPhone HEIC photos into a PDF document in your browser. Files never leave your device.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css?v=2">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2135025602500740" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/"><svg class="logo-icon" width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#2563eb"/><circle cx="23" cy="23" r="5" fill="#fff"/><path d="M12 46l12-15 8 10 5-6 15 11z" fill="#fff" opacity=".95"/></svg>MyHeicGo</a>
+      <nav class="nav">
+        <a href="/es/" class="lang-link">🌐 Español</a>
+        <a href="/">HEIC to JPG</a>
+        <a href="png.html">HEIC to PNG</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="eyebrow">MyHeicGo · Free Image Tools</p>
+        <h1>HEIC to PDF Converter</h1>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="error-banner" class="error-banner" hidden></div>
+
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Choose or drop HEIC files">
+        <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-title">Drop HEIC photos to build a PDF</p>
+        <p class="dz-sub">or <span class="dz-browse">browse your files</span> · each photo becomes one page, in order</p>
+        <input id="file-input" type="file" accept=".heic,.heif,image/heic,image/heif" multiple hidden>
+      </div>
+
+      <div id="file-list" class="file-list" hidden></div>
+
+      <div class="list-actions" style="justify-content:center;">
+        <button id="add-more" class="btn btn-ghost" hidden>+ Add more pages</button>
+        <button id="download-pdf" class="btn btn-primary" hidden>
+          ⬇ Download PDF (<span id="done-count">0</span> pages)
+        </button>
+      </div>
+    </section>
+
+    <section class="section container">
+      <h2>Perfect for paperwork</h2>
+      <p>
+        Scanning apps charge for exactly this: turning phone photos into a tidy PDF. Here it is free —
+        convert photos of receipts, IDs, contracts, handwritten notes or whiteboards into one
+        multi-page document, ready to email or upload to any portal. Everything is generated inside
+        your browser, so private documents never touch a server.
+      </p>
+      <p>
+        Just need plain images instead? Use the
+        <a href="/">HEIC to JPG &amp; PNG converter</a>.
+      </p>
+    </section>
+
+    <section id="faq" class="section container">
+      <h2>Frequently asked questions</h2>
+      <div class="faq-item">
+        <h3>How is the PDF laid out?</h3>
+        <p>Each photo becomes one A4 page, scaled to fit. Files are added in the order you dropped them.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Are my documents uploaded?</h3>
+        <p>No. Conversion and PDF assembly happen entirely in your browser. Disconnect from the internet after the page loads — it still works.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I reorder pages?</h3>
+        <p>Remove a page with its ✕ button and add files back in the order you want. Keep it simple: drop files in the sequence you need.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>MyHeicGo · Free private image conversion in your browser.</p>
+      <p class="footer-muted"><a href="/">HEIC to JPG</a> · <a href="png.html">HEIC to PNG</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy Policy</a> · © 2026</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    var dropzone = document.getElementById('dropzone');
+    var fileInput = document.getElementById('file-input');
+    var fileList = document.getElementById('file-list');
+    var errorBanner = document.getElementById('error-banner');
+    var downloadPdfBtn = document.getElementById('download-pdf');
+    var doneCountEl = document.getElementById('done-count');
+    var addMoreBtn = document.getElementById('add-more');
+
+    var items = [];
+    var busy = false;
+    var errTimer = null;
+
+    function fmtSize(b) {
+      if (b < 1024) return b + ' B';
+      if (b < 1048576) return (b / 1024).toFixed(0) + ' KB';
+      return (b / 1048576).toFixed(1) + ' MB';
+    }
+
+    function showError(msg) {
+      errorBanner.textContent = msg;
+      errorBanner.hidden = false;
+      clearTimeout(errTimer);
+      errTimer = setTimeout(function () { errorBanner.hidden = true; }, 8000);
+    }
+
+    function isHeic(f) {
+      var n = (f.name || '').toLowerCase();
+      return /\.heic$|\.heif$/.test(n) || f.type === 'image/heic' || f.type === 'image/heif';
+    }
+
+    function updateCount() {
+      var done = items.filter(function (it) { return it.status === 'done'; }).length;
+      doneCountEl.textContent = String(done);
+      downloadPdfBtn.hidden = done === 0;
+    }
+
+    function buildRow(item) {
+      var row = document.createElement('div');
+      row.className = 'file-item';
+
+      var thumb = document.createElement('div');
+      thumb.className = 'file-thumb placeholder';
+      thumb.textContent = 'HEIC';
+
+      var info = document.createElement('div');
+      info.className = 'file-info';
+      var name = document.createElement('div');
+      name.className = 'file-name';
+      name.textContent = item.file.name;
+      var meta = document.createElement('div');
+      meta.className = 'file-meta';
+      var status = document.createElement('span');
+      status.className = 'status-working';
+      status.textContent = 'waiting…';
+      meta.appendChild(document.createTextNode(fmtSize(item.file.size) + ' · '));
+      meta.appendChild(status);
+
+      var del = document.createElement('button');
+      del.className = 'btn btn-ghost';
+      del.style.padding = '4px 10px';
+      del.textContent = '✕';
+      del.title = 'Remove this page';
+      del.addEventListener('click', function () {
+        if (item.url) URL.revokeObjectURL(item.url);
+        items.splice(items.indexOf(item), 1);
+        row.remove();
+        updateCount();
+      });
+
+      row.appendChild(thumb);
+      row.appendChild(info);
+      row.appendChild(del);
+      fileList.appendChild(row);
+      item.ui = { thumb: thumb, status: status, row: row };
+    }
+
+    function addFiles(list) {
+      var added = 0;
+      for (var i = 0; i < list.length; i++) {
+        var f = list[i];
+        if (!isHeic(f)) { showError('"' + f.name + '" is not a HEIC/HEIF file and was skipped.'); continue; }
+        var item = { file: f, status: 'pending', jpegBlob: null, url: null, w: 0, h: 0 };
+        items.push(item);
+        buildRow(item);
+        added++;
+      }
+      if (added > 0) {
+        fileList.hidden = false;
+        addMoreBtn.hidden = false;
+        processQueue();
+      }
+    }
+
+    function processQueue() {
+      if (busy) return;
+      var next = null;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].status === 'pending') { next = items[i]; break; }
+      }
+      if (!next) { updateCount(); return; }
+
+      busy = true;
+      next.status = 'working';
+      next.ui.status.textContent = 'converting…';
+
+      if (typeof window.heic2any !== 'function') {
+        next.status = 'error';
+        next.ui.status.textContent = 'library missing';
+        next.ui.status.className = 'status-error';
+        showError('The conversion library failed to load. Refresh the page.');
+        busy = false;
+        return;
+      }
+
+      window.heic2any({ blob: next.file, toType: 'image/jpeg', quality: 0.92 })
+        .then(function (res) {
+          var blob = Array.isArray(res) ? res[0] : res;
+          next.jpegBlob = blob;
+          return new Promise(function (resolve, reject) {
+            var img = new Image();
+            img.onload = function () { resolve(img); };
+            img.onerror = reject;
+            img.src = URL.createObjectURL(blob);
+          });
+        })
+        .then(function (img) {
+          next.w = img.naturalWidth;
+          next.h = img.naturalHeight;
+          next.url = img.src;
+
+          var t = document.createElement('img');
+          t.className = 'file-thumb';
+          t.src = next.url;
+          next.ui.thumb.replaceWith(t);
+
+          next.ui.status.textContent = fmtSize(next.jpegBlob.size) + ' · page ready';
+          next.ui.status.className = 'status-done';
+          next.status = 'done';
+          busy = false;
+          updateCount();
+          processQueue();
+        })
+        .catch(function () {
+          next.status = 'error';
+          next.ui.status.textContent = 'failed to convert';
+          next.ui.status.className = 'status-error';
+          busy = false;
+          processQueue();
+        });
+    }
+
+    function loadImage(url) {
+      return new Promise(function (resolve, reject) {
+        var img = new Image();
+        img.onload = function () { resolve(img); };
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    downloadPdfBtn.addEventListener('click', function () {
+      var done = items.filter(function (it) { return it.status === 'done'; });
+      if (!done.length) return;
+      if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+        showError('PDF library not loaded. Refresh the page and try again.');
+        return;
+      }
+      downloadPdfBtn.disabled = true;
+
+      var doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+      var A4W = 595.28, A4H = 841.89, MARGIN = 24;
+      var maxW = A4W - MARGIN * 2, maxH = A4H - MARGIN * 2;
+
+      var chain = Promise.resolve();
+      done.forEach(function (it, idx) {
+        chain = chain.then(function () {
+          return loadImage(it.url).then(function (img) {
+            if (idx > 0) doc.addPage('a4', 'pt');
+            var r = Math.min(maxW / it.w, maxH / it.h);
+            var w = it.w * r, h = it.h * r;
+            var x = (A4W - w) / 2, y = (A4H - h) / 2;
+            doc.addImage(img, 'JPEG', x, y, w, h);
+          });
+        });
+      });
+
+      chain.then(function () {
+        doc.save('myheicgo.pdf');
+        downloadPdfBtn.disabled = false;
+      }).catch(function () {
+        showError('PDF generation failed. Please try again.');
+        downloadPdfBtn.disabled = false;
+      });
+    });
+
+    ['dragenter', 'dragover'].forEach(function (ev) {
+      dropzone.addEventListener(ev, function (e) { e.preventDefault(); dropzone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+      dropzone.addEventListener(ev, function (e) { e.preventDefault(); dropzone.classList.remove('dragover'); });
+    });
+    dropzone.addEventListener('drop', function (e) {
+      if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+    });
+    dropzone.addEventListener('click', function () { fileInput.click(); });
+    dropzone.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+    });
+    fileInput.addEventListener('change', function () { addFiles(fileInput.files); fileInput.value = ''; });
+    addMoreBtn.addEventListener('click', function () { fileInput.click(); });
+  })();
+  </script>
+</body>
+</html>

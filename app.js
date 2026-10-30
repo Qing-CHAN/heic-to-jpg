@@ -1,10 +1,19 @@
 (function () {
   'use strict';
 
-  var outFmt = document.body.getAttribute('data-img-format') === 'png' ? 'png' : 'jpg';
+  var attr = document.body.getAttribute('data-img-format');
+  var outFmt = (attr === 'png' || attr === 'webp') ? attr : 'jpg';
+  try {
+    var urlFmt = new URLSearchParams(location.search).get('fmt');
+    if (urlFmt === 'png' || urlFmt === 'webp' || urlFmt === 'jpg') outFmt = urlFmt;
+  } catch (e) {}
 
-  function outType() { return outFmt === 'png' ? 'image/png' : 'image/jpeg'; }
-  function outExt() { return outFmt === 'png' ? 'png' : 'jpg'; }
+  function outType() {
+    if (outFmt === 'png') return 'image/png';
+    if (outFmt === 'webp') return 'image/webp';
+    return 'image/jpeg';
+  }
+  function outExt() { return outFmt; }
 
   var T = document.documentElement.lang === 'es' ? {
     waiting: 'esperando…',
@@ -167,7 +176,9 @@
     window.heic2any({ blob: next.file, toType: outType(), quality: 0.92 })
       .then(function (result) {
         var blob = Array.isArray(result) ? result[0] : result;
+        var gotExt = blob.type === 'image/png' ? 'png' : (blob.type === 'image/webp' ? 'webp' : 'jpg');
         next.blob = blob;
+        next.actualExt = gotExt;
         next.status = 'done';
 
         var img = document.createElement('img');
@@ -178,13 +189,13 @@
         next.ui.thumb.replaceWith(img);
         next.ui.thumb = img;
 
-        setStatus(next, fmtSize(blob.size) + ' · ' + outExt().toUpperCase() + ' ' + T.ready, 'status-done');
+        setStatus(next, fmtSize(blob.size) + ' · ' + next.actualExt.toUpperCase() + ' ' + T.ready, 'status-done');
 
         var a = document.createElement('a');
         a.className = 'btn btn-small';
         a.textContent = T.download;
         a.href = next.url;
-        a.download = outName(next.file.name);
+        a.download = outName(next.file.name).replace(/\.[a-z0-9]+$/i, '.' + next.actualExt);
         next.ui.action.appendChild(a);
 
         converting = false;
@@ -201,11 +212,14 @@
 
   /* ---------- download all (zip) ---------- */
 
+  function actualOutName(it) {
+    return outName(it.file.name).replace(/\.[a-z0-9]+$/i, '.' + (it.actualExt || outExt()));
+  }
+
   function uniqueName(name, used) {
     if (!used[name]) { used[name] = 1; return name; }
-    var n = used[name] + 1;
-    used[name] = n;
-    return name.replace(/\.jpg$/i, '-' + n + '.jpg');
+    used[name]++;
+    return name.replace(/\.(jpg|jpeg|png|webp)$/i, '-' + used[name] + '.$1');
   }
 
   downloadAllBtn.addEventListener('click', function () {
@@ -218,7 +232,7 @@
         setTimeout(function () {
           var a = document.createElement('a');
           a.href = it.url;
-          a.download = outName(it.file.name);
+          a.download = actualOutName(it);
           document.body.appendChild(a);
           a.click();
           a.remove();
@@ -230,7 +244,7 @@
     var zip = new window.JSZip();
     var used = {};
     done.forEach(function (it) {
-      zip.file(uniqueName(outName(it.file.name), used), it.blob);
+      zip.file(uniqueName(actualOutName(it), used), it.blob);
     });
     zip.generateAsync({ type: 'blob' }).then(function (blob) {
       var url = URL.createObjectURL(blob);
@@ -276,6 +290,7 @@
 
   /* ---------- format toggle ---------- */
   var fmtBtns = document.querySelectorAll('.fmt-btn');
+  fmtBtns.forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-fmt') === outFmt); });
   fmtBtns.forEach(function (b) {
     b.addEventListener('click', function (e) {
       e.stopPropagation();
