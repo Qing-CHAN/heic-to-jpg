@@ -279,9 +279,9 @@
           var ctx = c.getContext('2d');
           ctx.putImageData(new ImageData(new Uint8ClampedArray(displayData.data), dw, dh), 0, 0);
           c.toBlob(function (b) {
-            if (b && /image\/(jpeg|png)/.test(b.type)) resolve(b);
+            if (b && /image\/(jpeg|png|webp)/.test(b.type)) resolve(b);
             else reject(new Error('libheif encode failed'));
-          }, 'image/jpeg', 0.92);
+          }, outType(), 0.92);
         } catch (e) { reject(e); }
       };
       var onErr = function (err) { reject(new Error('libheif display: ' + (err || 'error'))); };
@@ -307,9 +307,9 @@
           c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
           c.toBlob(function (b) {
             URL.revokeObjectURL(url);
-            if (b && /image\/(jpeg|png)/.test(b.type)) resolve(b);
+            if (b && /image\/(jpeg|png|webp)/.test(b.type)) resolve(b);
             else reject(new Error('native decode unavailable'));
-          }, 'image/jpeg', 0.92);
+          }, outType(), 0.92);
         } catch (e) {
           URL.revokeObjectURL(url);
           reject(e);
