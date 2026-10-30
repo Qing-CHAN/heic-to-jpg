@@ -572,7 +572,7 @@
   }
 
   /* ---------- format toggle ---------- */
-  var fmtBtns = document.querySelectorAll('.fmt-btn');
+  var fmtBtns = document.querySelectorAll('.format-toggle .fmt-btn');
   fmtBtns.forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-fmt') === outFmt); });
   fmtBtns.forEach(function (b) {
     b.addEventListener('click', function (e) {
