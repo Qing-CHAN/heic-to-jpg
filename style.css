@@ -430,7 +430,6 @@ body {
 }
 
 /* 5) 顶部 logo：鼠标经过时轻轻摇摆 */
-.logo { display: inline-block; }
 .logo:hover .logo-icon { animation: mhg-wave .6s ease; }
 @keyframes mhg-wave {
   0%, 100% { transform: rotate(0); }
