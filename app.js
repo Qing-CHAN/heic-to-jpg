@@ -217,11 +217,13 @@
     img.className = 'file-thumb';
     img.alt = '';
     item.url = URL.createObjectURL(blob);
+    img.onload = function () {
+      item.w = img.naturalWidth;
+      item.h = img.naturalHeight;
+    };
     img.src = item.url;
     item.ui.thumb.replaceWith(img);
     item.ui.thumb = img;
-    item.w = img.naturalWidth;
-    item.h = img.naturalHeight;
 
     if (outFmt === 'pdf') {
       setStatus(item, fmtSize(blob.size) + ' · ' + T.page_ready, 'status-done');
@@ -434,10 +436,15 @@
           img.onerror = reject;
           img.src = it.url;
         }).then(function (img) {
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var c = document.createElement('canvas');
+          c.width = w;
+          c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0);
+          var data = c.toDataURL('image/jpeg', 0.92);
           if (idx > 0) doc.addPage('a4', 'pt');
-          var r = Math.min(maxW / it.w, maxH / it.h);
-          var x = (A4W - it.w * r) / 2, y = (A4H - it.h * r) / 2;
-          doc.addImage(img, 'JPEG', x, y, it.w * r, it.h * r);
+          var r = Math.min(maxW / w, maxH / h);
+          doc.addImage(data, 'JPEG', (A4W - w * r) / 2, (A4H - h * r) / 2, w * r, h * r);
         });
       });
     });
