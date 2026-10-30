@@ -26,6 +26,7 @@
       retry: '重试',
       lib_error: '转换组件加载失败，请检查网络后刷新页面。',
       not_heic: '不是 HEIC/HEIF 文件，已跳过。',
+      fmt_switch: '格式已切换 — 之后添加的文件将转换为 %s。',
       page_ready: '已就绪',
       engine_loading: '解码引擎下载中，请稍候…',
       engine_hint: '首次使用需下载解码引擎（约 2MB），下载完成后即可转换，请保持网络畅通。',
@@ -44,7 +45,8 @@
     engine_hint: 'La primera vez se descarga el motor de conversión (~2 MB). Espera con conexión estable.',
     pdf_btn: 'Descargar PDF (%d páginas)',
     lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
-    not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.'
+    not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.',
+    fmt_switch: 'Formato cambiado — los archivos que añadas se convertirán a %s.'
     },
     en: {
     waiting: 'waiting…',
@@ -59,7 +61,8 @@
     engine_hint: 'First visit downloads the conversion engine (~2 MB). Please keep your connection stable.',
     pdf_btn: 'Download PDF (%d pages)',
     lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
-    not_heic: 'is not a HEIC/HEIF file and was skipped.'
+    not_heic: 'is not a HEIC/HEIF file and was skipped.',
+    fmt_switch: 'Format switched — files added from now on will be %s.'
     }
   };
   var T = _MSG[document.documentElement.lang] || _MSG.en;
@@ -527,7 +530,7 @@
       outFmt = f;
       fmtBtns.forEach(function (x) { x.classList.toggle('active', x === b); });
       if (items.length) {
-        showError('Format switched — files added from now on will be ' + outExt().toUpperCase() + '.');
+        showError(T.fmt_switch.replace('%s', outExt().toUpperCase()));
       }
     });
   });
