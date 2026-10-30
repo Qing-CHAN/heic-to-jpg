@@ -242,16 +242,19 @@
     var data = decoder.decode(buf);
     if (!data || !data.length) return Promise.reject(new Error('libheif: no image'));
     var image = data[0];
-    var w = image.getwidth ? image.getwidth() : 0;
-    var h = image.getheight ? image.getheight() : 0;
+    var w = image.get_width ? image.get_width() : (image.getwidth ? image.getwidth() : 0);
+    var h = image.get_height ? image.get_height() : (image.getheight ? image.getheight() : 0);
+    if (!w || !h) return Promise.reject(new Error('libheif: zero size'));
     return new Promise(function (resolve, reject) {
       var onOk = function (displayData) {
         try {
+          var dw = displayData.width || w;
+          var dh = displayData.height || h;
           var c = document.createElement('canvas');
-          c.width = displayData.width;
-          c.height = displayData.height;
+          c.width = dw;
+          c.height = dh;
           var ctx = c.getContext('2d');
-          ctx.putImageData(new ImageData(new Uint8ClampedArray(displayData.data), displayData.width, displayData.height), 0, 0);
+          ctx.putImageData(new ImageData(new Uint8ClampedArray(displayData.data), dw, dh), 0, 0);
           c.toBlob(function (b) {
             if (b && /image\/(jpeg|png)/.test(b.type)) resolve(b);
             else reject(new Error('libheif encode failed'));
