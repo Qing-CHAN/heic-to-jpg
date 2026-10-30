@@ -546,8 +546,8 @@
   function buildPageSelector() {
     if (pageSizeRow) return pageSizeRow;
     pageSizeRow = document.createElement('div');
-    pageSizeRow.className = 'format-toggle page-size-toggle';
-    pageSizeRow.style.margin = '10px auto 0';
+    pageSizeRow.className = 'page-size-toggle';
+    pageSizeRow.style.cssText = 'margin:10px auto 0;display:none;justify-content:center;';
     pageSizeRow.style.display = 'none';
     var opts = [['a4', 'A4'], ['letter', 'Letter'], ['original', T.orig]];
     opts.forEach(function (o, i) {
