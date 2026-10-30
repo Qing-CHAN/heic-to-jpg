@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convertidor de HEIC a JPG — Gratis, privado, sin subidas</title>
+  <meta name="description" content="Convierte fotos HEIC de tu iPhone a JPG al instante en tu navegador. 100% gratis, conversión por lotes, sin registro. Tus archivos nunca salen de tu dispositivo.">
+  <link rel="canonical" href="https://myheicgo.com/es/">
+  <link rel="alternate" hreflang="en" href="https://myheicgo.com/">
+  <link rel="alternate" hreflang="es" href="https://myheicgo.com/es/">
+  <link rel="alternate" hreflang="x-default" href="https://myheicgo.com/">
+  <meta property="og:title" content="Convertidor de HEIC a JPG — Gratis, privado">
+  <meta property="og:description" content="Convierte fotos HEIC a JPG en tu navegador. Tus archivos nunca salen de tu dispositivo.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../style.css?v=2">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2135025602500740" crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="/"><svg class="logo-icon" width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#2563eb"/><circle cx="23" cy="23" r="5" fill="#fff"/><path d="M12 46l12-15 8 10 5-6 15 11z" fill="#fff" opacity=".95"/></svg>MyHeicGo</a>
+      <nav class="nav">
+        <a href="/">EN</a>
+        <a href="/es/" aria-current="true">ES</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Convierte HEIC a JPG — gratis y privado</h1>
+        <p class="hero-sub">
+          Suelta tus fotos del iPhone abajo. Todo se convierte <b>dentro de tu navegador</b>:
+          tus archivos nunca salen de tu dispositivo. Sin registro, sin marcas de agua, sin límites.
+        </p>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="error-banner" class="error-banner" hidden></div>
+
+      <div class="format-toggle" role="radiogroup" aria-label="Formato de salida">
+        <button type="button" class="fmt-btn active" data-fmt="jpg">JPG</button>
+        <button type="button" class="fmt-btn" data-fmt="png">PNG</button>
+      </div>
+
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Elige o suelta archivos HEIC">
+        <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4 4m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round"/>
+        </svg>
+        <p class="dz-title">Arrastra y suelta fotos HEIC aquí</p>
+        <p class="dz-sub">o <span class="dz-browse">explora tus archivos</span> · admite varios archivos</p>
+        <input id="file-input" type="file" accept=".heic,.heif,image/heic,image/heif" multiple hidden>
+      </div>
+
+      <div id="file-list" class="file-list" hidden></div>
+
+      <div class="list-actions">
+        <button id="add-more" class="btn btn-ghost" hidden>+ Añadir más archivos</button>
+        <button id="download-all" class="btn btn-primary" hidden>
+          Descargar todo en ZIP (<span id="done-count">0</span>)
+        </button>
+      </div>
+    </section>
+
+    <section class="features container" aria-label="Ventajas">
+      <div class="feature-card">
+        <div class="feature-emoji">🔒</div>
+        <h3>100% privado</h3>
+        <p>La conversión ocurre en tu navegador. Nada se sube, guarda ni comparte.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">💸</div>
+        <h3>Totalmente gratis</h3>
+        <p>Sin cuentas, ni suscripciones, ni marcas de agua, ni límites diarios.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">⚡</div>
+        <h3>Por lotes</h3>
+        <p>Suelta un álbum entero de una vez y descárgalo todo en un solo ZIP.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-emoji">📱</div>
+        <h3>Funciona en todo</h3>
+        <p>Chrome, Edge, Firefox y Safari en Windows, Mac, Android e iPhone.</p>
+      </div>
+    </section>
+
+    <section class="section container">
+      <h2>¿Qué es un archivo HEIC?</h2>
+      <p>
+        HEIC (High Efficiency Image Container) es el formato de foto predeterminado de los iPhone
+        desde iOS 11. Ocupa aproximadamente la mitad que un JPG equivalente, lo cual es genial para
+        ahorrar espacio… pero muchos programas de Windows, webs y dispositivos antiguos no pueden
+        abrirlo. Convertir HEIC a JPG hace tus fotos universales.
+      </p>
+      <p>
+        Esta herramienta convierte HEIC y HEIF a JPG de alta calidad (92%) enteramente en tu propio
+        dispositivo: ni las fotos más personales salen de tu teléfono u ordenador.
+      </p>
+    </section>
+
+    <section id="faq" class="section container">
+      <h2>Preguntas frecuentes</h2>
+      <div class="faq-item">
+        <h3>¿Qué es un archivo HEIC?</h3>
+        <p>Es el formato de foto predeterminado de los iPhone desde iOS 11. Comprime mejor que JPG, pero muchos programas y webs no lo abren directamente.</p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Mis fotos se suben a algún servidor?</h3>
+        <p>No. La conversión ocurre dentro de tu navegador. Tus archivos nunca salen de tu dispositivo; puedes desconectarte de internet después de cargar la página y seguirá funcionando.</p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Es realmente gratis?</h3>
+        <p>Sí. Sin registro, sin marcas de agua y sin límites diarios. El sitio se mantiene con anuncios.</p>
+      </div>
+      <div class="faq-item">
+        <h3>¿Puedo convertir varios archivos a la vez?</h3>
+        <p>Sí: suelta todos los que quieras y descárgalos uno a uno o todos juntos en un ZIP.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>HEIC→JPG · Conversión gratis y privada de HEIC a JPG en tu navegador.</p>
+      <p class="footer-muted"><a href="/">EN</a> · <a href="/es/">ES</a> · © 2026 · Tus fotos se quedan en tu dispositivo.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="../app.js"></script>
+</body>
+</html>

@@ -6,6 +6,26 @@
   function outType() { return outFmt === 'png' ? 'image/png' : 'image/jpeg'; }
   function outExt() { return outFmt === 'png' ? 'png' : 'jpg'; }
 
+  var T = document.documentElement.lang === 'es' ? {
+    waiting: 'esperando…',
+    converting: 'convirtiendo…',
+    ready: 'listo',
+    failed_lib: 'error — biblioteca no disponible',
+    failed: 'no se pudo convertir',
+    download: 'Descargar',
+    lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
+    not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.'
+  } : {
+    waiting: 'waiting…',
+    converting: 'converting…',
+    ready: 'ready',
+    failed_lib: 'failed — library missing',
+    failed: 'failed to convert',
+    download: 'Download',
+    lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
+    not_heic: 'is not a HEIC/HEIF file and was skipped.'
+  };
+
   var dropzone = document.getElementById('dropzone');
   var fileInput = document.getElementById('file-input');
   var fileList = document.getElementById('file-list');
@@ -67,7 +87,7 @@
       var f = list[i];
       if (!f) continue;
       if (!isHeic(f)) {
-        showError('"' + f.name + '" is not a HEIC/HEIF file and was skipped.');
+        showError('"' + f.name + '" ' + T.not_heic);
         continue;
       }
       var item = { file: f, status: 'pending', blob: null, url: null };
@@ -104,7 +124,7 @@
 
     var status = document.createElement('span');
     status.className = 'status-working';
-    status.textContent = 'waiting…';
+    status.textContent = T.waiting;
     meta.appendChild(status);
 
     info.appendChild(name);
@@ -133,12 +153,12 @@
 
     converting = true;
     next.status = 'converting';
-    setStatus(next, 'converting…', 'status-working');
+    setStatus(next, T.converting, 'status-working');
 
     if (!libReady()) {
       next.status = 'error';
-      setStatus(next, 'failed — library missing', 'status-error');
-      showError('The conversion library failed to load. Check your connection and refresh the page.');
+      setStatus(next, T.failed_lib, 'status-error');
+      showError(T.lib_error);
       converting = false;
       processQueue();
       return;
@@ -158,11 +178,11 @@
         next.ui.thumb.replaceWith(img);
         next.ui.thumb = img;
 
-        setStatus(next, fmtSize(blob.size) + ' · ' + outExt().toUpperCase() + ' ready', 'status-done');
+        setStatus(next, fmtSize(blob.size) + ' · ' + outExt().toUpperCase() + ' ' + T.ready, 'status-done');
 
         var a = document.createElement('a');
         a.className = 'btn btn-small';
-        a.textContent = 'Download';
+        a.textContent = T.download;
         a.href = next.url;
         a.download = outName(next.file.name);
         next.ui.action.appendChild(a);
@@ -173,7 +193,7 @@
       })
       .catch(function () {
         next.status = 'error';
-        setStatus(next, 'failed to convert', 'status-error');
+        setStatus(next, T.failed, 'status-error');
         converting = false;
         processQueue();
       });
