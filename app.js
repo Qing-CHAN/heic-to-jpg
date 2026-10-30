@@ -239,24 +239,34 @@
   }
 
   function libheifDecode(file) {
-    var F = window.libheifLocal;
-    if (!F) return Promise.reject(new Error('libheif not loaded'));
-    var start = Promise.resolve();
-    var libObj = F;
-    if (typeof F === 'function') {
-      try {
-        var r = F();
-        if (r && typeof r.then === 'function') {
-          return r.then(function (i) {
-            var L = (i && i.HeifDecoder) ? i : F;
-            return file.arrayBuffer().then(function (buf) { return runDecode(L, buf); });
-          });
-        }
-        if (r && r.HeifDecoder) libObj = r;
-      } catch (e) { /* fallthrough: use F as object */ }
+    var started = Date.now();
+    var retriedLoader = false;
+    function usable(L) { return L && L.HeifDecoder; }
+    function waitLib() {
+      var F = window.libheifLocal;
+      if (usable(F)) return Promise.resolve(F);
+      if (F && typeof F === 'function') {
+        try {
+          var r = F();
+          if (r && typeof r.then === 'function') {
+            return r.then(function (i) { return usable(i) ? i : (usable(F) ? F : Promise.reject(new Error('libheif factory empty'))); });
+          }
+          if (usable(r)) return Promise.resolve(r);
+        } catch (e) { /* treat as object below */ }
+      }
+      if (F && typeof F === 'object' && !retriedLoader) {
+        // engine exported empty/broken object — reset and reload
+        retriedLoader = true;
+        console.warn('[MyHeicGo] engine object broken, reloading engine');
+        try { window.libheifLocal = undefined; } catch (e2) {}
+        if (typeof window.__mhgLoadEngine === 'function') window.__mhgLoadEngine();
+      }
+      if (window.libheifFailed) return Promise.reject(new Error('libheif engine failed to load (all 3 sources)'));
+      if (Date.now() - started > 120000) return Promise.reject(new Error('libheif not loaded after 120s'));
+      return new Promise(function (res) { setTimeout(res, 800); }).then(waitLib);
     }
-    return start.then(function () {
-      return file.arrayBuffer().then(function (buf) { return runDecode(libObj, buf); });
+    return waitLib().then(function (L) {
+      return file.arrayBuffer().then(function (buf) { return runDecode(L, buf); });
     });
   }
 

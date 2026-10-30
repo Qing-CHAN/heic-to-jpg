@@ -51,5 +51,7 @@
       });
   }
 
+  window.__mhgLoadEngine = function () { attempt(0); };
+
   attempt(0);
 })();
