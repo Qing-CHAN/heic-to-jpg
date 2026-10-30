@@ -27,6 +27,8 @@
       lib_error: '转换组件加载失败，请检查网络后刷新页面。',
       not_heic: '不是 HEIC/HEIF 文件，已跳过。',
       page_ready: '已就绪',
+      engine_loading: '解码引擎下载中，请稍候…',
+      engine_hint: '首次使用需下载解码引擎（约 2MB），下载完成后即可转换，请保持网络畅通。',
       pdf_btn: '下载 PDF（%d 页）'
     },
     es: {
@@ -38,6 +40,8 @@
     download: 'Descargar',
     retry: 'Reintentar',
     page_ready: 'página lista',
+    engine_loading: 'descargando el motor de conversión, espera…',
+    engine_hint: 'La primera vez se descarga el motor de conversión (~2 MB). Espera con conexión estable.',
     pdf_btn: 'Descargar PDF (%d páginas)',
     lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
     not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.'
@@ -51,12 +55,31 @@
     download: 'Download',
     retry: 'Retry',
     page_ready: 'page ready',
+    engine_loading: 'downloading conversion engine, please wait…',
+    engine_hint: 'First visit downloads the conversion engine (~2 MB). Please keep your connection stable.',
     pdf_btn: 'Download PDF (%d pages)',
     lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
     not_heic: 'is not a HEIC/HEIF file and was skipped.'
     }
   };
   var T = _MSG[document.documentElement.lang] || _MSG.en;
+
+  /* ---------- engine loading watchdog ---------- */
+  var engineWaitSince = 0;
+  var engineHintEl = null;
+  function _unused_libReady() { return !!window.libheifLocal; }
+  function showEngineHint() {
+    if (engineHintEl || !dropzone) return;
+    engineHintEl = document.createElement('div');
+    engineHintEl.className = 'engine-hint';
+    engineHintEl.style.cssText = 'margin-top:10px;font-size:13px;color:#6b7280;';
+    engineHintEl.textContent = T.engine_hint;
+    dropzone.appendChild(engineHintEl);
+  }
+  function hideEngineHint() {
+    if (engineHintEl) { engineHintEl.remove(); engineHintEl = null; }
+  }
+
 
   var dropzone = document.getElementById('dropzone');
   var fileInput = document.getElementById('file-input');
@@ -323,13 +346,24 @@
     setStatus(next, T.converting, 'status-working');
 
     if (!libReady()) {
-      next.status = 'error';
-      setStatus(next, T.failed_lib, 'status-error');
-      showError(T.lib_error);
+      var now = Date.now();
+      if (!engineWaitSince) engineWaitSince = now;
+      if (now - engineWaitSince > 90000) {
+        next.status = 'error';
+        engineWaitSince = 0;
+        setStatus(next, T.failed_lib, 'status-error');
+        showError(T.lib_error);
+        converting = false;
+        processQueue();
+        return;
+      }
+      next.status = 'pending';
+      setStatus(next, T.engine_loading, 'status-working');
       converting = false;
-      processQueue();
+      setTimeout(processQueue, 1500);
       return;
     }
+    engineWaitSince = 0;
 
     window.heic2any({ blob: next.file, toType: outType(), quality: 0.92 })
       .then(function (result) {
@@ -463,6 +497,13 @@
     fileInput.value = '';
   });
   addMoreBtn.addEventListener('click', function () { fileInput.click(); });
+
+  if (!libReady()) {
+    showEngineHint();
+    var enginePoll = setInterval(function () {
+      if (libReady()) { clearInterval(enginePoll); hideEngineHint(); }
+    }, 500);
+  }
 
   /* ---------- format toggle ---------- */
   var fmtBtns = document.querySelectorAll('.fmt-btn');
