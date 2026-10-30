@@ -23,6 +23,7 @@
       failed_lib: '出错 — 转换组件未加载',
       failed: '转换失败',
       download: '下载',
+      retry: '重试',
       lib_error: '转换组件加载失败，请检查网络后刷新页面。',
       not_heic: '不是 HEIC/HEIF 文件，已跳过。',
       page_ready: '已就绪',
@@ -35,6 +36,7 @@
     failed_lib: 'error — biblioteca no disponible',
     failed: 'no se pudo convertir',
     download: 'Descargar',
+    retry: 'Reintentar',
     page_ready: 'página lista',
     pdf_btn: 'Descargar PDF (%d páginas)',
     lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
@@ -47,6 +49,7 @@
     failed_lib: 'failed — library missing',
     failed: 'failed to convert',
     download: 'Download',
+    retry: 'Retry',
     page_ready: 'page ready',
     pdf_btn: 'Download PDF (%d pages)',
     lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
@@ -177,6 +180,81 @@
 
   /* ---------- conversion queue (serial) ---------- */
 
+  function handleDone(item, blob) {
+    var gotExt = blob.type === 'image/png' ? 'png' : (blob.type === 'image/webp' ? 'webp' : 'jpg');
+    item.blob = blob;
+    item.actualExt = gotExt;
+    item.status = 'done';
+    item.ui.row.classList.add('done-pop');
+
+    var img = document.createElement('img');
+    img.className = 'file-thumb';
+    img.alt = '';
+    item.url = URL.createObjectURL(blob);
+    img.src = item.url;
+    item.ui.thumb.replaceWith(img);
+    item.ui.thumb = img;
+    item.w = img.naturalWidth;
+    item.h = img.naturalHeight;
+
+    if (outFmt === 'pdf') {
+      setStatus(item, fmtSize(blob.size) + ' · ' + T.page_ready, 'status-done');
+    } else {
+      setStatus(item, fmtSize(blob.size) + ' · ' + gotExt.toUpperCase() + ' ' + T.ready, 'status-done');
+
+      var a = document.createElement('a');
+      a.className = 'btn btn-small';
+      a.textContent = T.download;
+      a.href = item.url;
+      a.download = outName(item.file.name).replace(/\.[a-z0-9]+$/i, '.' + gotExt);
+      item.ui.action.appendChild(a);
+    }
+
+    converting = false;
+    updateDoneCount();
+    processQueue();
+  }
+
+  function nativeDecode(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var c = document.createElement('canvas');
+          var long = Math.max(img.naturalWidth, img.naturalHeight);
+          var scale = long > 4000 ? 4000 / long : 1;
+          c.width = Math.round(img.naturalWidth * scale);
+          c.height = Math.round(img.naturalHeight * scale);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          c.toBlob(function (b) {
+            URL.revokeObjectURL(url);
+            if (b && /image\/(jpeg|png)/.test(b.type)) resolve(b);
+            else reject(new Error('native decode unavailable'));
+          }, 'image/jpeg', 0.92);
+        } catch (e) {
+          URL.revokeObjectURL(url);
+          reject(e);
+        }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('native decode failed')); };
+      img.src = url;
+    });
+  }
+
+  function addRetry(item) {
+    var b = document.createElement('button');
+    b.className = 'btn btn-small';
+    b.textContent = T.retry;
+    b.addEventListener('click', function () {
+      b.remove();
+      item.status = 'pending';
+      setStatus(item, T.waiting, 'status-working');
+      processQueue();
+    });
+    item.ui.action.appendChild(b);
+  }
+
   function processQueue() {
     if (converting) return;
     var next = null;
@@ -201,44 +279,21 @@
     window.heic2any({ blob: next.file, toType: outType(), quality: 0.92 })
       .then(function (result) {
         var blob = Array.isArray(result) ? result[0] : result;
-        var gotExt = blob.type === 'image/png' ? 'png' : (blob.type === 'image/webp' ? 'webp' : 'jpg');
-        next.blob = blob;
-        next.actualExt = gotExt;
-        next.status = 'done';
-        next.ui.row.classList.add('done-pop');
-
-        var img = document.createElement('img');
-        img.className = 'file-thumb';
-        img.alt = '';
-        next.url = URL.createObjectURL(blob);
-        img.src = next.url;
-        next.ui.thumb.replaceWith(img);
-        next.ui.thumb = img;
-        next.w = img.naturalWidth;
-        next.h = img.naturalHeight;
-
-        if (outFmt === 'pdf') {
-          setStatus(next, fmtSize(blob.size) + ' · ' + T.page_ready, 'status-done');
-        } else {
-          setStatus(next, fmtSize(blob.size) + ' · ' + next.actualExt.toUpperCase() + ' ' + T.ready, 'status-done');
-
-          var a = document.createElement('a');
-          a.className = 'btn btn-small';
-          a.textContent = T.download;
-          a.href = next.url;
-          a.download = outName(next.file.name).replace(/\.[a-z0-9]+$/i, '.' + next.actualExt);
-          next.ui.action.appendChild(a);
-        }
-
-        converting = false;
-        updateDoneCount();
-        processQueue();
+        handleDone(next, blob);
       })
-      .catch(function () {
-        next.status = 'error';
-        setStatus(next, T.failed, 'status-error');
-        converting = false;
-        processQueue();
+      .catch(function (e1) {
+        console.error('HEIC convert failed:', next.file.name, e1);
+        nativeDecode(next.file)
+          .then(function (blob) { handleDone(next, blob); })
+          .catch(function (e2) {
+            console.error('HEIC native fallback failed:', next.file.name, e2);
+            next.status = 'error';
+            var why = e2 && e2.message ? String(e2.message).slice(0, 40) : '';
+            setStatus(next, T.failed + (why ? ' · ' + why : ''), 'status-error');
+            addRetry(next);
+            converting = false;
+            processQueue();
+          });
       });
   }
 
