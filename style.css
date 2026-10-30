@@ -45,11 +45,20 @@ body {
   height: 58px;
 }
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 19px;
   color: var(--text);
   text-decoration: none;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
+}
+.logo-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  flex: 0 0 auto;
 }
 .logo-arrow { color: var(--blue); }
 .nav a {
