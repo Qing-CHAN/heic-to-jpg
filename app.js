@@ -445,8 +445,9 @@
           c.getContext('2d').drawImage(img, 0, 0);
           var data = c.toDataURL('image/jpeg', 0.92);
           if (pdfPage === 'original') {
-            if (!doc) doc = new window.jspdf.jsPDF({ unit: 'pt', format: [w, h] });
-            else doc.addPage([w, h]);
+            var orient = w > h ? 'l' : 'p';
+            if (!doc) doc = new window.jspdf.jsPDF({ unit: 'pt', format: [w, h], orientation: orient });
+            else doc.addPage([w, h], orient);
             doc.addImage(data, 'JPEG', 0, 0, w, h);
           } else {
             var f = FIXED[pdfPage] || FIXED.a4;
