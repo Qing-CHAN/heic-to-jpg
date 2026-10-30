@@ -61,6 +61,7 @@ body {
   flex: 0 0 auto;
 }
 .logo-arrow { color: var(--blue); }
+.lang-link { font-weight: 600; color: var(--blue) !important; }
 .nav a {
   color: var(--muted);
   text-decoration: none;
