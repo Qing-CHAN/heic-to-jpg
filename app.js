@@ -217,14 +217,23 @@
 
   function libheifDecode(file) {
     var F = window.libheifLocal;
-    if (typeof F !== 'function') return Promise.reject(new Error('libheif not loaded'));
-    return file.arrayBuffer().then(function (buf) {
-      var inst;
-      try { inst = F(); } catch (e) { return Promise.reject(e); }
-      if (inst && typeof inst.then === 'function') {
-        return inst.then(function (i) { return runDecode(i && i.HeifDecoder ? i : F, buf); });
-      }
-      return runDecode(inst && inst.HeifDecoder ? inst : F, buf);
+    if (!F) return Promise.reject(new Error('libheif not loaded'));
+    var start = Promise.resolve();
+    var libObj = F;
+    if (typeof F === 'function') {
+      try {
+        var r = F();
+        if (r && typeof r.then === 'function') {
+          return r.then(function (i) {
+            var L = (i && i.HeifDecoder) ? i : F;
+            return file.arrayBuffer().then(function (buf) { return runDecode(L, buf); });
+          });
+        }
+        if (r && r.HeifDecoder) libObj = r;
+      } catch (e) { /* fallthrough: use F as object */ }
+    }
+    return start.then(function () {
+      return file.arrayBuffer().then(function (buf) { return runDecode(libObj, buf); });
     });
   }
 
