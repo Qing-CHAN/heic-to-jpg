@@ -2,10 +2,10 @@
   'use strict';
 
   var attr = document.body.getAttribute('data-img-format');
-  var outFmt = (attr === 'png' || attr === 'webp') ? attr : 'jpg';
+  var outFmt = (attr === 'png' || attr === 'webp' || attr === 'pdf') ? attr : 'jpg';
   try {
     var urlFmt = new URLSearchParams(location.search).get('fmt');
-    if (urlFmt === 'png' || urlFmt === 'webp' || urlFmt === 'jpg') outFmt = urlFmt;
+    if (urlFmt === 'png' || urlFmt === 'webp' || urlFmt === 'jpg' || urlFmt === 'pdf') outFmt = urlFmt;
   } catch (e) {}
 
   function outType() {
@@ -22,6 +22,8 @@
     failed_lib: 'error — biblioteca no disponible',
     failed: 'no se pudo convertir',
     download: 'Descargar',
+    page_ready: 'página lista',
+    pdf_btn: 'Descargar PDF (%d páginas)',
     lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
     not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.'
   } : {
@@ -31,6 +33,8 @@
     failed_lib: 'failed — library missing',
     failed: 'failed to convert',
     download: 'Download',
+    page_ready: 'page ready',
+    pdf_btn: 'Download PDF (%d pages)',
     lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
     not_heic: 'is not a HEIC/HEIF file and was skipped.'
   };
@@ -85,7 +89,12 @@
   function updateDoneCount() {
     var done = items.filter(function (it) { return it.status === 'done'; });
     doneCountEl.textContent = String(done.length);
-    downloadAllBtn.hidden = done.length < 2;
+    if (outFmt === 'pdf') {
+      downloadAllBtn.textContent = T.pdf_btn.replace('%d', done.length);
+      downloadAllBtn.hidden = done.length < 1;
+    } else {
+      downloadAllBtn.hidden = done.length < 2;
+    }
   }
 
   /* ---------- file intake ---------- */
@@ -188,15 +197,21 @@
         img.src = next.url;
         next.ui.thumb.replaceWith(img);
         next.ui.thumb = img;
+        next.w = img.naturalWidth;
+        next.h = img.naturalHeight;
 
-        setStatus(next, fmtSize(blob.size) + ' · ' + next.actualExt.toUpperCase() + ' ' + T.ready, 'status-done');
+        if (outFmt === 'pdf') {
+          setStatus(next, fmtSize(blob.size) + ' · ' + T.page_ready, 'status-done');
+        } else {
+          setStatus(next, fmtSize(blob.size) + ' · ' + next.actualExt.toUpperCase() + ' ' + T.ready, 'status-done');
 
-        var a = document.createElement('a');
-        a.className = 'btn btn-small';
-        a.textContent = T.download;
-        a.href = next.url;
-        a.download = outName(next.file.name).replace(/\.[a-z0-9]+$/i, '.' + next.actualExt);
-        next.ui.action.appendChild(a);
+          var a = document.createElement('a');
+          a.className = 'btn btn-small';
+          a.textContent = T.download;
+          a.href = next.url;
+          a.download = outName(next.file.name).replace(/\.[a-z0-9]+$/i, '.' + next.actualExt);
+          next.ui.action.appendChild(a);
+        }
 
         converting = false;
         updateDoneCount();
@@ -222,9 +237,38 @@
     return name.replace(/\.(jpg|jpeg|png|webp)$/i, '-' + used[name] + '.$1');
   }
 
+  function buildPdf(done) {
+    if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+      showError('PDF library not loaded. Refresh the page and try again.');
+      return;
+    }
+    var doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+    var A4W = 595.28, A4H = 841.89, MARGIN = 24;
+    var maxW = A4W - MARGIN * 2, maxH = A4H - MARGIN * 2;
+    var chain = Promise.resolve();
+    done.forEach(function (it, idx) {
+      chain = chain.then(function () {
+        return new Promise(function (resolve, reject) {
+          var img = new Image();
+          img.onload = function () { resolve(img); };
+          img.onerror = reject;
+          img.src = it.url;
+        }).then(function (img) {
+          if (idx > 0) doc.addPage('a4', 'pt');
+          var r = Math.min(maxW / it.w, maxH / it.h);
+          var x = (A4W - it.w * r) / 2, y = (A4H - it.h * r) / 2;
+          doc.addImage(img, 'JPEG', x, y, it.w * r, it.h * r);
+        });
+      });
+    });
+    chain.then(function () { doc.save('myheicgo.pdf'); })
+      .catch(function () { showError('PDF generation failed. Please try again.'); });
+  }
+
   downloadAllBtn.addEventListener('click', function () {
     var done = items.filter(function (it) { return it.status === 'done' && it.blob; });
     if (!done.length) return;
+    if (outFmt === 'pdf') { buildPdf(done); return; }
 
     if (typeof window.JSZip !== 'function') {
       // graceful fallback: trigger one-by-one downloads
