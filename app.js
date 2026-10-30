@@ -15,7 +15,20 @@
   }
   function outExt() { return outFmt; }
 
-  var T = document.documentElement.lang === 'es' ? {
+  var _MSG = {
+    zh: {
+      waiting: '排队中…',
+      converting: '转换中…',
+      ready: '完成',
+      failed_lib: '出错 — 转换组件未加载',
+      failed: '转换失败',
+      download: '下载',
+      lib_error: '转换组件加载失败，请检查网络后刷新页面。',
+      not_heic: '不是 HEIC/HEIF 文件，已跳过。',
+      page_ready: '已就绪',
+      pdf_btn: '下载 PDF（%d 页）'
+    },
+    es: {
     waiting: 'esperando…',
     converting: 'convirtiendo…',
     ready: 'listo',
@@ -26,7 +39,8 @@
     pdf_btn: 'Descargar PDF (%d páginas)',
     lib_error: 'No se pudo cargar la biblioteca de conversión. Comprueba tu conexión y recarga la página.',
     not_heic: 'no es un archivo HEIC/HEIF y fue ignorado.'
-  } : {
+    },
+    en: {
     waiting: 'waiting…',
     converting: 'converting…',
     ready: 'ready',
@@ -37,7 +51,9 @@
     pdf_btn: 'Download PDF (%d pages)',
     lib_error: 'The conversion library failed to load. Check your connection and refresh the page.',
     not_heic: 'is not a HEIC/HEIF file and was skipped.'
+    }
   };
+  var T = _MSG[document.documentElement.lang] || _MSG.en;
 
   var dropzone = document.getElementById('dropzone');
   var fileInput = document.getElementById('file-input');
