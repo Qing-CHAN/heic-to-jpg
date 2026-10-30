@@ -172,7 +172,7 @@
     row.appendChild(action);
     fileList.appendChild(row);
 
-    item.ui = { thumb: thumb, meta: meta, status: status, action: action };
+    item.ui = { thumb: thumb, meta: meta, status: status, action: action, row: row };
   }
 
   /* ---------- conversion queue (serial) ---------- */
@@ -205,6 +205,7 @@
         next.blob = blob;
         next.actualExt = gotExt;
         next.status = 'done';
+        next.ui.row.classList.add('done-pop');
 
         var img = document.createElement('img');
         img.className = 'file-thumb';

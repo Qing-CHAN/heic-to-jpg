@@ -306,3 +306,68 @@ body {
 .article h2 { font-size: 18px; }
 .article ul, .article ol { padding-left: 22px; }
 .article li { margin-bottom: 6px; }
+
+/* ---------- 趣味微动效（简洁不吵闹） ---------- */
+
+/* hero 柔和渐变底 */
+.hero {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), rgba(37, 99, 235, 0));
+  border-radius: 0 0 24px 24px;
+}
+
+/* 转换中：文字前转圈小 spinner */
+.status-working::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #e2e8f0;
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: -1px;
+  animation: mhg-spin .8s linear infinite;
+}
+@keyframes mhg-spin { to { transform: rotate(360deg); } }
+
+/* 转换完成：卡片轻快弹一下 */
+.done-pop { animation: mhg-pop .35s ease; }
+@keyframes mhg-pop {
+  0% { transform: scale(0.97); }
+  55% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* 完成状态前的小绿勾跳动 */
+.status-done::before {
+  content: '✓';
+  display: inline-block;
+  margin-right: 4px;
+  animation: mhg-check .4s ease;
+}
+@keyframes mhg-check {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* 拖入文件时：图标开心地跳 */
+.dropzone.dragover .dz-icon {
+  animation: mhg-bounce .45s ease infinite alternate;
+}
+@keyframes mhg-bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-7px); }
+}
+
+/* 功能卡图标：鼠标经过时俏皮一歪 */
+.feature-emoji {
+  display: inline-block;
+  transition: transform .25s ease;
+}
+.feature-card:hover .feature-emoji {
+  transform: scale(1.25) rotate(-8deg);
+}
+
+/* 按钮按下微缩 */
+.btn:active { transform: scale(0.97); }
